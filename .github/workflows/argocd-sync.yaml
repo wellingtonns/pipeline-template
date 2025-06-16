@@ -49,8 +49,7 @@ jobs:
 
           for i in {1..8}
           do
-            RESPONSE=$(curl -sk -H "Authorization: Bearer $ARGOCD_TOKEN" https://${
-              { inputs.ARGOCD_URL }}/api/v1/applications/${{ inputs.APP_NAME }})
+            RESPONSE=$(curl -sk -H "Authorization: Bearer $ARGOCD_TOKEN" https://${{ inputs.ARGOCD_URL }}/api/v1/applications/${{ inputs.APP_NAME }})
             STATUS=$(echo "$RESPONSE" | jq -r '.status.sync.status')
             HEALTH=$(echo "$RESPONSE" | jq -r '.status.health.status')
 
