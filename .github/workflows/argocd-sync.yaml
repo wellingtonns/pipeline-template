@@ -1,25 +1,26 @@
-name: Deploy to ArgoCD
+name: ArgoCD Sync Application
 
 on:
   workflow_call:
     inputs:
+      ARGOCD_URL:
+        required: true
+        type: string
+      ARGOCD_USER:
+        required: true
+        type: string
+      ARGOCD_PASS:
+        required: true
+        type: string
       APP_NAME:
         required: true
         type: string
 
 jobs:
-  deploy:
+  argocd-sync:
     runs-on: ubuntu-latest
 
-    env:
-      ARGOCD_URL: ${{ secrets.ARGOCD_URL }}
-      ARGOCD_USER: ${{ secrets.ARGOCD_USER }}
-      ARGOCD_PASS: ${{ secrets.ARGOCD_PASS }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Instalar jq
         run: |
           sudo apt-get update
@@ -30,8 +31,8 @@ jobs:
         run: |
           echo "🔐 Fazendo login no ArgoCD"
           TOKEN=$(curl -sk -X POST -H "Content-Type: application/json" \
-            -d '{"username":"'"$ARGOCD_USER"'","password":"'"$ARGOCD_PASS"'"}' \
-            https://$ARGOCD_URL/api/v1/session | jq -r .token)
+            -d '{"username":"'"${{ inputs.ARGOCD_USER }}"'","password":"'"${{ inputs.ARGOCD_PASS }}"'"}' \
+            https://${{ inputs.ARGOCD_URL }}/api/v1/session | jq -r .token)
 
           if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
             echo "❌ Erro no login no ArgoCD"
@@ -48,7 +49,8 @@ jobs:
 
           for i in {1..8}
           do
-            RESPONSE=$(curl -sk -H "Authorization: Bearer $ARGOCD_TOKEN" https://$ARGOCD_URL/api/v1/applications/${{ inputs.APP_NAME }})
+            RESPONSE=$(curl -sk -H "Authorization: Bearer $ARGOCD_TOKEN" https://${
+              { inputs.ARGOCD_URL }}/api/v1/applications/${{ inputs.APP_NAME }})
             STATUS=$(echo "$RESPONSE" | jq -r '.status.sync.status')
             HEALTH=$(echo "$RESPONSE" | jq -r '.status.health.status')
 
