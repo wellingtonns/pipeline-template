@@ -31,7 +31,7 @@ jobs:
         run: |
           echo "🔐 Fazendo login no ArgoCD"
           TOKEN=$(curl -sk -X POST -H "Content-Type: application/json" \
-            -d '{"username":"'"${{ inputs.ARGOCD_USER }}"'","password":"'"${{ inputs.ARGOCD_PASS }}"'"}' \
+            -d "{\"username\":\"${{ inputs.ARGOCD_USER }}\",\"password\":\"${{ inputs.ARGOCD_PASS }}\"}" \
             https://${{ inputs.ARGOCD_URL }}/api/v1/session | jq -r .token)
 
           if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
