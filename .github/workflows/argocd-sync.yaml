@@ -1,4 +1,4 @@
-name: ArgoCD Sync Application  # Corrigido de 'ame' para 'name'
+name: ArgoCD Sync Application
 
 on:
   workflow_call:
@@ -16,6 +16,12 @@ on:
         required: true
         type: string
 
+env:
+  ARGOCD_URL: ${{ inputs.ARGOCD_URL }}
+  ARGOCD_USER: ${{ inputs.ARGOCD_USER }}
+  ARGOCD_PASS: ${{ inputs.ARGOCD_PASS }}
+  APP_NAME: ${{ inputs.APP_NAME }}
+
 jobs:
   argocd-sync:
     runs-on: ubuntu-latest
@@ -31,8 +37,8 @@ jobs:
         run: |
           echo "🔐 Fazendo login no ArgoCD"
           TOKEN=$(curl -sk -X POST -H "Content-Type: application/json" \
-            -d "{\"username\":\"${{ inputs.ARGOCD_USER }}\",\"password\":\"${{ inputs.ARGOCD_PASS }}\"}" \
-            https://${{ inputs.ARGOCD_URL }}/api/v1/session | jq -r .token)
+            -d "{\"username\":\"$ARGOCD_USER\",\"password\":\"$ARGOCD_PASS\"}" \
+            https://$ARGOCD_URL/api/v1/session | jq -r .token)
 
           if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
             echo "❌ Erro no login no ArgoCD"
@@ -43,13 +49,13 @@ jobs:
 
       - name: Verificar Status no ArgoCD
         run: |
-          echo "🔍 Verificando status do app ${{ inputs.APP_NAME }}"
+          echo "🔍 Verificando status do app $APP_NAME"
 
           degraded_found=false
 
           for i in {1..8}
           do
-            RESPONSE=$(curl -sk -H "Authorization: Bearer $ARGOCD_TOKEN" https://${{ inputs.ARGOCD_URL }}/api/v1/applications/${{ inputs.APP_NAME }})
+            RESPONSE=$(curl -sk -H "Authorization: Bearer $ARGOCD_TOKEN" https://$ARGOCD_URL/api/v1/applications/$APP_NAME)
             STATUS=$(echo "$RESPONSE" | jq -r '.status.sync.status')
             HEALTH=$(echo "$RESPONSE" | jq -r '.status.health.status')
 
