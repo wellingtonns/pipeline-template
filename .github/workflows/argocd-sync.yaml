@@ -1,4 +1,4 @@
-name: ArgoCD Sync Application
+name: ArgoCD Sync Application  # Corrigido de 'ame' para 'name'
 
 on:
   workflow_call:
