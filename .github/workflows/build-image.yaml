@@ -6,10 +6,17 @@ on:
       IMAGE_NAME:
         required: true
         type: string
+    outputs:
+      tag:
+        description: "Docker image tag"
+        value: ${{ jobs.build.outputs.tag }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.export-tag.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -22,18 +29,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Definir TAG
-        run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: export-tag
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Build da imagem Docker
         run: |
-          docker build -t ${{ inputs.IMAGE_NAME }}:${TAG} .
-          docker tag ${{ inputs.IMAGE_NAME }}:${TAG} ${{ inputs.IMAGE_NAME }}:latest
+          docker build -t ${{ inputs.IMAGE_NAME }}:${{ steps.export-tag.outputs.tag }} .
+          docker tag ${{ inputs.IMAGE_NAME }}:${{ steps.export-tag.outputs.tag }} ${{ inputs.IMAGE_NAME }}:latest
 
       - name: Push da imagem Docker
         run: |
-          docker push ${{ inputs.IMAGE_NAME }}:${TAG}
+          docker push ${{ inputs.IMAGE_NAME }}:${{ steps.export-tag.outputs.tag }}
           docker push ${{ inputs.IMAGE_NAME }}:latest
-
-      - name: Export TAG
-        run: echo "tag=${TAG}" >> $GITHUB_OUTPUT
-        id: vars
