@@ -16,6 +16,7 @@ on:
         required: true
 jobs:
   build-and-push:
+    name: Build and Push Image
     runs-on: ubuntu-latest
 
     env:

@@ -16,6 +16,7 @@ on:
 
 jobs:
   argocd-sync:
+    name: Sync ArgoCD
     runs-on: ubuntu-latest
 
     env:
