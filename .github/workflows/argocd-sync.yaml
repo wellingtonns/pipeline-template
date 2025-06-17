@@ -17,10 +17,10 @@ on:
         type: string
 
 env:
-  ARGOCD_URL: ${{ inputs.ARGOCD_URL }}
-  ARGOCD_USER: ${{ inputs.ARGOCD_USER }}
-  ARGOCD_PASS: ${{ inputs.ARGOCD_PASS }}
-  APP_NAME: ${{ inputs.APP_NAME }}
+  ARGOCD_URL: ${{ secrets.ARGOCD_URL }}
+  ARGOCD_USER: ${{ secrets.ARGOCD_USER }}
+  ARGOCD_PASS: ${{ secrets.ARGOCD_PASS }}
+  APP_NAME: ${{ secrets.APP_NAME }}
 
 jobs:
   argocd-sync:
